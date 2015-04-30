@@ -10,20 +10,21 @@ RUN buildDeps=' \
         libc6-dev \
         libencode-perl \
         make \
+        default-jdk \
     ' \
     && set -x \
     && apt-get update \
-    && apt-get --yes install --no-install-recommends rlwrap $buildDeps \
+    && apt-get --yes install --no-install-recommends rlwrap default-jre $buildDeps \
     && rm -rf /var/lib/apt/lists/* \
     && mkdir /root/rakudo \
     && curl -fsSL http://rakudo.org/downloads/star/rakudo-star-${rakudo_version}.tar.gz -o rakudo.tar.gz \
     && tar xzf rakudo.tar.gz --strip-components=1 -C /root/rakudo \
     && ( \
         cd /root/rakudo \
-        && perl Configure.pl --prefix=/usr --gen-moar \
+        && perl Configure.pl --prefix=/usr --gen-nqp --backends=jvm \
         && make -j"$(nproc)" install \
     ) \
     && rm -rf /rakudo.tar.gz /root/rakudo \
     && apt-get purge -y --auto-remove $buildDeps
 
-CMD ["rlwrap", "perl6"]
+CMD ["rlwrap", "perl6-j"]
